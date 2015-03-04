@@ -1,0 +1,14 @@
+{
+  "name": "threx",
+  "version": "0.1.0",
+  "description": "Spawn threads from your JavaScript",
+  "main": "lib/main.js",
+  "licenses" : [{
+    "type" : "MIT",
+    "url" : "http://www.opensource.org/licenses/mit-license.php"
+  }],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/trevnorris/threx.git"
+  }
+}

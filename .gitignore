@@ -1,0 +1,5 @@
+build
+vgcore.*
+core*
+v8*.log
+perf.data*
