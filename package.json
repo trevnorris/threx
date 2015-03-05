@@ -10,8 +10,5 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/trevnorris/threx.git"
-  },
-  "scripts": {
-    "preinstall": "git clone --depth 1 https://github.com/trevnorris/fuq.h.git deps/fuq; node-gyp rebuild"
   }
 }

@@ -1,3 +1,0 @@
-[submodule "deps/fuq"]
-	path = deps/fuq
-	url = https://github.com/trevnorris/fuq.h.git
