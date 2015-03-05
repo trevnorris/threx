@@ -76,6 +76,7 @@ the spawned thread.
 Here's a multi-threaded "hello world!"
 
 ```cpp
+// main.cc
 #include <v8.h>
 #include <node.h>
 #include <threx.h>
@@ -109,6 +110,7 @@ NODE_MODULE(addon, init)
 ```
 
 ```javascript
+// run.js
 var Thread = require('threx');
 var runMe = require('./build/Release/addon').runMe;
 
@@ -116,4 +118,17 @@ var t = new Thread();
 t.spawn();
 t.enqueue(runMe());
 t.join();
+```
+
+```gyp
+# binding.gyp
+{
+  "targets": [{
+    "target_name": "addon",
+    "sources": [ "main.cc" ],
+    "include_dirs": [
+      "node_modules/threx/include"
+    ]
+  }]
+}
 ```
