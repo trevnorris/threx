@@ -110,8 +110,7 @@ NODE_MODULE(addon, init)
 
 ```javascript
 var Thread = require('threx');
-var addon = require('./build/Release/addon');
-var runMe = addon.runMe;
+var runMe = require('./build/Release/addon').runMe;
 
 var t = new Thread();
 t.spawn();
