@@ -17,7 +17,7 @@ t.join();
 Only works with Node.js v0.12.x or io.js. To install using Node do:
 
 ```
-$ npm instal threx
+$ npm install threx
 ```
 
 To install using io.js do:
