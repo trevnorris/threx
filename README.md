@@ -26,6 +26,16 @@ To install using io.js do:
 $ iojs $(which npm) install threx --nodedir=<path_to_source>
 ```
 
+To use in your project include this in your `binding.gyp` under `"targets"`:
+
+```
+"include_dirs": [
+  "node_modules/threx/include"
+]
+```
+
+And then put `#include <threx.h>` at the top of your C++ file.
+
 
 ### API
 
@@ -44,20 +54,67 @@ This is meant to be used in conjunction with the native API.
 
 #### C++
 
+Everything is namespaced under `threx`.
+
 `thread_resource_t`: `struct` of the thread resource attached to the `Thread()`
 instance.
 
 `thread_work_cb`: `typedef` of the type of callback that is called from the
 spawned thread.
 
-`export_work()`: Pass it a callback of type `thread_work_cb` and it will return
-a `Local<External>` that you can return to JS and pass to `Thread#enqueue()`.
+`export_work(v8::Isolate*, thread_work_cb)`: Pass it a callback of type
+`thread_work_cb` and it will return a `Local<External>` that you can return to
+JS and pass to `Thread#enqueue()`.
 
-`enqueue_work()`: Pass it a `thread_resource_t*` and a `thread_work_cb` to have
-it queued to be run from the spawned thread.
+`enqueue_work(thread_resource_t*, thread_work_cb)`: Pass it a
+`thread_resource_t*` and a `thread_work_cb` to have it queued to be run from
+the spawned thread.
 
 
 ### Examples
 
-Coming soon... Examples of how to use both the JS and native API to do awesome
-stuff!
+Here's a multi-threaded "hello world!"
+
+```cpp
+#include <v8.h>
+#include <node.h>
+#include <threx.h>
+
+using v8::FunctionCallbackInfo;
+using v8::Handle;
+using v8::Isolate;
+using v8::Object;
+using v8::Value;
+
+using threx::thread_resource_t;
+using threx::export_work;
+
+
+static void test_cb(thread_resource_t* tr) {
+  fprintf(stderr, "hello world\n");
+}
+
+
+void RunMe(const FunctionCallbackInfo<Value>& args) {
+  Isolate* isolate = args.GetIsolate();
+  args.GetReturnValue().Set(export_work(isolate, test_cb));
+}
+
+
+void init(Handle<Object> exports) {
+  NODE_SET_METHOD(exports, "runMe", RunMe);
+}
+
+NODE_MODULE(addon, init)
+```
+
+```javascript
+var Thread = require('threx');
+var addon = require('./build/Release/addon');
+var runMe = addon.runMe;
+
+var t = new Thread();
+t.spawn();
+t.enqueue(runMe());
+t.join();
+```
