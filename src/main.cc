@@ -123,6 +123,7 @@ void Enqueue(const FunctionCallbackInfo<Value>& args) {
 
   assert(args[0]->IsExternal());
   ext = args[0].As<External>()->Value();
+  assert(nullptr != ext);
   enqueue_work(tr, reinterpret_cast<thread_work_cb>(ext));
 }
 
