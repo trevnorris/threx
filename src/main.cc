@@ -8,6 +8,10 @@
 #include <assert.h>  /* assert */
 #include <stdlib.h>  /* free, malloc */
 
+#if __cplusplus <= 199711L
+#define nullptr NULL
+#endif
+
 namespace threx {
 
 using v8::Context;
