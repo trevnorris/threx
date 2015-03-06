@@ -49,8 +49,8 @@ The API is still pretty scarce, but this is what we've got:
 
 `Thread#join()`: Join the thread and cleanup resources. Blocking call.
 
-`Thread#enqueue(obj)`: Pass a native method to be run on the spawned thread.
-This is meant to be used in conjunction with the native API.
+`Thread#enqueue(obj[, external])`: Pass a native method to be run on the
+spawned thread.  This is meant to be used in conjunction with the native API.
 
 #### C++
 

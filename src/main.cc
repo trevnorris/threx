@@ -113,6 +113,7 @@ void Join(const FunctionCallbackInfo<Value>& args) {
 void Enqueue(const FunctionCallbackInfo<Value>& args) {
   Local<Object> self;
   thread_resource_t* tr;
+  void* data = nullptr;
   void* tr_p;
   void* ext;
 
@@ -126,7 +127,12 @@ void Enqueue(const FunctionCallbackInfo<Value>& args) {
   assert(args[0]->IsExternal());
   ext = args[0].As<External>()->Value();
   assert(nullptr != ext);
-  enqueue_work(tr, reinterpret_cast<thread_work_cb>(ext), nullptr);
+
+  // Check if an External is also passed.
+  if (args[1]->IsExternal())
+    data = args[1].As<External>()->Value();
+
+  enqueue_work(tr, reinterpret_cast<thread_work_cb>(ext), data);
 }
 
 
