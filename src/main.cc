@@ -35,7 +35,9 @@ static void thread_routine(void* d) {
       void* arg = fuq_dequeue(&tr->queue);
       if (nullptr == arg)
         continue;
-      reinterpret_cast<thread_work_cb>(arg)(tr);
+      queue_work_t* qi = static_cast<queue_work_t*>(arg);
+      qi->cb(tr, qi->data);
+      free(arg);
     }
     if (!tr->active)
       break;
@@ -74,7 +76,7 @@ void Spawn(const FunctionCallbackInfo<Value>& args) {
 }
 
 
-static void bring_down_thread(thread_resource_t* tr) {
+static void bring_down_thread(thread_resource_t* tr, void* data) {
   tr->active = false;
 }
 
@@ -98,7 +100,7 @@ void Join(const FunctionCallbackInfo<Value>& args) {
 
   self->SetAlignedPointerInInternalField(0, nullptr);
 
-  enqueue_work(tr, bring_down_thread);
+  enqueue_work(tr, bring_down_thread, nullptr);
 
   assert(uv_thread_join(&tr->thread) == 0);
   uv_sem_destroy(&tr->sem);
@@ -124,7 +126,7 @@ void Enqueue(const FunctionCallbackInfo<Value>& args) {
   assert(args[0]->IsExternal());
   ext = args[0].As<External>()->Value();
   assert(nullptr != ext);
-  enqueue_work(tr, reinterpret_cast<thread_work_cb>(ext));
+  enqueue_work(tr, reinterpret_cast<thread_work_cb>(ext), nullptr);
 }
 
 

@@ -5,6 +5,9 @@
 #include <uv.h>
 #include <v8.h>
 
+#include <assert.h>  /* assert */
+#include <stdlib.h>  /* malloc */
+
 namespace threx {
 
 typedef struct {
@@ -20,7 +23,12 @@ typedef struct {
   void* data;
 } thread_resource_t;
 
-typedef void (*thread_work_cb)(thread_resource_t* tr);
+typedef void (*thread_work_cb)(thread_resource_t* tr, void* data);
+
+typedef struct {
+  thread_work_cb cb;
+  void* data;
+} queue_work_t;
 
 static inline v8::Local<v8::External> export_work(v8::Isolate* isolate,
                                                   thread_work_cb cb) {
@@ -28,8 +36,17 @@ static inline v8::Local<v8::External> export_work(v8::Isolate* isolate,
   return scope.Escape(v8::External::New(isolate, reinterpret_cast<void*>(cb)));
 }
 
-static inline void enqueue_work(thread_resource_t* tr, thread_work_cb cb) {
-  fuq_enqueue(&tr->queue, reinterpret_cast<void*>(cb));
+static inline void enqueue_work(thread_resource_t* tr,
+                                thread_work_cb cb,
+                                void* data) {
+  queue_work_t* qi;
+
+  qi = static_cast<queue_work_t*>(malloc(sizeof(*qi)));
+  assert(NULL != qi);
+  qi->cb = cb;
+  qi->data = data;
+
+  fuq_enqueue(&tr->queue, qi);
   uv_sem_post(&tr->sem);
 }
 

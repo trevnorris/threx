@@ -66,7 +66,7 @@ spawned thread.
 `thread_work_cb` and it will return a `Local<External>` that you can return to
 JS and pass to `Thread#enqueue()`.
 
-`enqueue_work(thread_resource_t*, thread_work_cb)`: Pass it a
+`enqueue_work(thread_resource_t*, thread_work_cb, void* data)`: Pass it a
 `thread_resource_t*` and a `thread_work_cb` to have it queued to be run from
 the spawned thread.
 
