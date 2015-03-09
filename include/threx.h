@@ -53,5 +53,13 @@ static inline void enqueue_work(thread_resource_t* tr,
   uv_sem_post(&tr->sem);
 }
 
+static inline thread_resource_t* get_thread_resource(v8::Local<v8::Object> o) {
+  void* ptr;
+  assert(0 < o->InternalFieldCount());
+  ptr = o->GetAlignedPointerFromInternalField(0);
+  assert(nullptr != ptr);
+  return static_cast<thread_resource_t*>(ptr);
+}
+
 }  // namespace threx
 #endif  // INCLUDE_THREX_H_
