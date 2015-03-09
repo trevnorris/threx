@@ -36,7 +36,7 @@ static void thread_routine(void* d) {
       if (nullptr == arg)
         continue;
       queue_work_t* qi = static_cast<queue_work_t*>(arg);
-      qi->cb(tr, qi->data);
+      qi->cb(tr, qi->data, qi->size);
       free(arg);
     }
     if (!tr->active)
@@ -76,7 +76,7 @@ void Spawn(const FunctionCallbackInfo<Value>& args) {
 }
 
 
-static void bring_down_thread(thread_resource_t* tr, void* data) {
+static void bring_down_thread(thread_resource_t* tr, void* data, size_t size) {
   tr->active = false;
 }
 
@@ -111,8 +111,10 @@ void Join(const FunctionCallbackInfo<Value>& args) {
 
 
 void Enqueue(const FunctionCallbackInfo<Value>& args) {
+  Isolate* isolate = args.GetIsolate();
   Local<Object> self;
   thread_resource_t* tr;
+  size_t data_length = 0;
   void* data = nullptr;
   void* tr_p;
   void* ext;
@@ -129,10 +131,25 @@ void Enqueue(const FunctionCallbackInfo<Value>& args) {
   assert(nullptr != ext);
 
   // Check if an External is also passed.
-  if (args[1]->IsExternal())
+  if (args[1]->IsExternal()) {
     data = args[1].As<External>()->Value();
 
-  enqueue_work(tr, reinterpret_cast<thread_work_cb>(ext), data);
+  // Check if a Buffer has been passed.
+  } else if (args[1]->IsObject()) {
+    Local<Object> obj = args[1].As<Object>();
+    // TODO(trevnorris): Necessary to pass the length of the buffer?
+    data_length = obj->GetIndexedPropertiesExternalArrayDataLength();
+    data = obj->GetIndexedPropertiesExternalArrayData();
+    assert(nullptr != data);
+
+    // Zero out the passed Buffer.
+    obj->SetIndexedPropertiesToExternalArrayData(nullptr,
+                                                 v8::kExternalUint8Array,
+                                                 0);
+    isolate->AdjustAmountOfExternalAllocatedMemory(-data_length);
+  }
+
+  enqueue_work(tr, reinterpret_cast<thread_work_cb>(ext), data, data_length);
 }
 
 

@@ -23,11 +23,12 @@ typedef struct {
   void* data;
 } thread_resource_t;
 
-typedef void (*thread_work_cb)(thread_resource_t* tr, void* data);
+typedef void (*thread_work_cb)(thread_resource_t* tr, void* data, size_t size);
 
 typedef struct {
   thread_work_cb cb;
   void* data;
+  size_t size;
 } queue_work_t;
 
 static inline v8::Local<v8::External> export_work(v8::Isolate* isolate,
@@ -38,13 +39,15 @@ static inline v8::Local<v8::External> export_work(v8::Isolate* isolate,
 
 static inline void enqueue_work(thread_resource_t* tr,
                                 thread_work_cb cb,
-                                void* data) {
+                                void* data,
+                                size_t size = 0) {
   queue_work_t* qi;
 
   qi = static_cast<queue_work_t*>(malloc(sizeof(*qi)));
   assert(NULL != qi);
   qi->cb = cb;
   qi->data = data;
+  qi->size = size;
 
   fuq_enqueue(&tr->queue, qi);
   uv_sem_post(&tr->sem);

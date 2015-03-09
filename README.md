@@ -49,8 +49,11 @@ The API is still pretty scarce, but this is what we've got:
 
 `Thread#join()`: Join the thread and cleanup resources. Blocking call.
 
-`Thread#enqueue(obj[, external])`: Pass a native method to be run on the
-spawned thread.  This is meant to be used in conjunction with the native API.
+`Thread#enqueue(obj[, data])`: Pass a native method to be run on the spawned
+thread.  This is meant to be used in conjunction with the native API. `data`
+can either be a `v8::External` or a `Buffer`. If a `Buffer` is passed then it
+cannot be a slice, and it will be zero'd out in order to hand control of the
+memory over to the spawned thread.
 
 #### C++
 
@@ -66,7 +69,7 @@ spawned thread.
 `thread_work_cb` and it will return a `Local<External>` that you can return to
 JS and pass to `Thread#enqueue()`.
 
-`enqueue_work(thread_resource_t*, thread_work_cb, void* data)`: Pass it a
+`enqueue_work(thread_resource_t*, thread_work_cb, void*[, size_t])`: Pass it a
 `thread_resource_t*` and a `thread_work_cb` to have it queued to be run from
 the spawned thread.
 
@@ -91,7 +94,7 @@ using threx::thread_resource_t;
 using threx::export_work;
 
 
-static void test_cb(thread_resource_t* tr) {
+static void test_cb(thread_resource_t* tr, void* data, size_t size) {
   fprintf(stderr, "hello world\n");
 }
 
