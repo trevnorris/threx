@@ -142,13 +142,12 @@ void Init(Handle<Object> target) {
   Local<FunctionTemplate> thread_t = FunctionTemplate::New(isolate, Thread);
   thread_t->SetClassName(String::NewFromUtf8(isolate, "Thread"));
   thread_t->InstanceTemplate()->SetInternalFieldCount(1);
-
-  NODE_SET_PROTOTYPE_METHOD(thread_t, "spawn", Spawn);
-  NODE_SET_PROTOTYPE_METHOD(thread_t, "join", Join);
-  NODE_SET_PROTOTYPE_METHOD(thread_t, "enqueue", Enqueue);
-
   target->Set(String::NewFromUtf8(isolate, "Thread"),
               thread_t->GetFunction());
+
+  NODE_SET_METHOD(target, "spawn", Spawn);
+  NODE_SET_METHOD(target, "join", Join);
+  NODE_SET_METHOD(target, "enqueue", Enqueue);
 }
 
 }  // namespace threx
