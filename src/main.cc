@@ -54,6 +54,19 @@ void Thread(const FunctionCallbackInfo<Value>& args) {
 }
 
 
+static void run_thread_cb(uv_async_t* handle) {
+  thread_resource_t* tr = reinterpret_cast<thread_resource_t*>(handle);
+  while (!fuq_empty(&tr->async_queue)) {
+    void* arg = fuq_dequeue(&tr->async_queue);
+    if (nullptr == arg)
+      continue;
+    queue_work_t* qi = static_cast<queue_work_t*>(arg);
+    qi->cb(tr, qi->data, qi->size);
+    free(arg);
+  }
+}
+
+
 void Spawn(const FunctionCallbackInfo<Value>& args) {
   Local<Object> self;
   thread_resource_t* tr;
@@ -66,8 +79,9 @@ void Spawn(const FunctionCallbackInfo<Value>& args) {
   assert(nullptr != tr);
 
   fuq_init(&tr->queue);
+  fuq_init(&tr->async_queue);
   assert(uv_sem_init(&tr->sem, 1) == 0);
-  assert(uv_async_init(uv_default_loop(), &tr->keep_alive, nullptr) == 0);
+  assert(uv_async_init(uv_default_loop(), &tr->keep_alive, run_thread_cb) == 0);
   assert(uv_thread_create(&tr->thread, thread_routine, tr) == 0);
   tr->active = true;
 
@@ -105,6 +119,7 @@ void Join(const FunctionCallbackInfo<Value>& args) {
   assert(uv_thread_join(&tr->thread) == 0);
   uv_sem_destroy(&tr->sem);
   fuq_dispose(&tr->queue);
+  fuq_dispose(&tr->async_queue);
   uv_close(reinterpret_cast<uv_handle_t*>(&tr->keep_alive), close_async);
   args.GetReturnValue().Set(self);
 }

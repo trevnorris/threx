@@ -17,6 +17,7 @@ typedef struct {
   uv_thread_t thread;
   uv_sem_t sem;
   fuq_queue_t queue;
+  fuq_queue_t async_queue;
   bool active;
 
   /* public */
@@ -51,6 +52,24 @@ static inline void enqueue_work(thread_resource_t* tr,
 
   fuq_enqueue(&tr->queue, qi);
   uv_sem_post(&tr->sem);
+}
+
+static inline void enqueue_cb(thread_resource_t* tr,
+                              thread_work_cb cb,
+                              void* data,
+                              size_t size = 0) {
+  bool is_empty = fuq_empty(&tr->async_queue);
+  queue_work_t* qi;
+
+  qi = static_cast<queue_work_t*>(malloc(sizeof(*qi)));
+  assert(NULL != qi);
+  qi->cb = cb;
+  qi->data = data;
+  qi->size = size;
+
+  fuq_enqueue(&tr->async_queue, qi);
+  if (is_empty)
+    uv_async_send(&tr->keep_alive);
 }
 
 static inline thread_resource_t* get_thread_resource(v8::Local<v8::Object> o) {

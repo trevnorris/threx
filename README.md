@@ -73,6 +73,9 @@ JS and pass to `Thread#enqueue()`.
 `thread_resource_t*` and a `thread_work_cb` to have it queued to be run from
 the spawned thread.
 
+`enqueue_cb(thread_resource_t*, thread_work_cb, void*[, size_t])`: Enqueue a
+callback to be run on the main thread, from the spawned thread.
+
 `get_thread_resource(Local<Object>)`: Pass in the object that was returned on
 `Thread#spawn()` and it will return the `thread_resource_t*`.
 
