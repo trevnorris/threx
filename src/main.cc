@@ -1,3 +1,10 @@
+/**
+ * See ../include/_nullptr (Reference to Scott Meyer)
+ */
+#if _MSC_VER < 1600 //MSVC version < 8
+     #include "../include/_nullptr.h"
+#endif
+
 #include "../include/threx.h"
 #include "../deps/fuq/fuq.h"
 
