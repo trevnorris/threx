@@ -1,6 +1,9 @@
 #ifndef INCLUDE_THREX_H_
 #define INCLUDE_THREX_H_
 
+#if _MSC_VER < 1600 //MSVC version < 8
+     #include "../src/nullptr/_nullptr.h"
+#endif
 #include "../deps/fuq/fuq.h"
 #include <uv.h>
 #include <v8.h>
