@@ -1,6 +1,6 @@
 {
   "name": "threx",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Spawn threads from your JavaScript",
   "main": "lib/main.js",
   "licenses" : [{
