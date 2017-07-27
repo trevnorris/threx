@@ -1,5 +1,7 @@
 ## threx
 
+HI!
+
 Spawn threads and run tasks on those threads from JS. Simple example that does
 nothing:
 
