@@ -7,6 +7,8 @@ nothing:
 
 WHAT THE?
 
+DANG!
+
 ```javascript
 var Thread = require('threx');
 
